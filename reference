@@ -1,0 +1,434 @@
+For Automation Box use:
+
+WinRM - How to set up Windows Remote Management and run scripts without being remoted into the computer
+
+# Contains comport information (keypad_type,debugcomport,softwarecomport,lockcableID)
+comports.txt
+
+701,COM21,COM17,1,
+702,COM19,COM20,2,
+702D,COM13,COM24,7,
+703BLE,COM6,COM7,8,
+703,COM23,COM16,3,
+704BLE,COM22,COM18,6,
+704,COM11,COM5,0,
+705,COM8,COM14,5,
+
+# Will output the correct COMs needed for EverestConfig
+.\setupeverest.ps1 703
+
+Note: 705BLE is the same as Model 3 (705BLE) because there is no non-BLE Model 3
+
+# To update TestRail use
+EverestTestRailRuns.py
+
+# Method to intall missing libraries through terminal 
+python -m pip install pyserial 
+cd C:\Program Files\Python38\Scripts
+If only have local access, not admin
+python -m pip install --user pyserial
+
+# Help with script building
+buildtc.py
+
+# To find all scripts with testcase number 
+bucketfind.cmd 702D C103497
+or 
+bucketfind.cmd 702D 103497
+
+# Reads the output from the lock, does not send "."
+keypresscommand.Keypress = ord(".") 
+- will clear any leftover saved output
+- should be used after keypresscommand = commandx20(....), before checking for red/green lights
+- should be used after a sleep(Keypad_Timeout) 
+
+# Debug from command prompt 
+D: ENTER
+CD Path
+python -m 702\Master\*file*.py
+(Pdb) break (line number)
+(Pdb) c 
+
+# Places break points at every errors =+
+pdberrs *file*.py
+
+# Allows input to the lock and records keypress' done on Entry for test. Change mycon.prot = 'COM##'
+EverestSerialTest.py
+
+# To install a lock (lock 1 by default) use
+installlock.py 
+
+# How to run from PowerShell
+Invoke-Command -ComputerName (remote computer name) -ScriptBlock {D:\Projects\PA_Automation\NextGenLaGard\setupeverest.ps1 704; python sysinfoallread.py}
+
+# In cmd
+- To pull ports
+Netstat -ab
+- To pull active ports only
+Netstat -a
+- See ip address
+ipconfig
+
+# Update lab lock FW
+FW update for both Entry/Lock 
+fwu_new.cmd - App & Boot update
+fwu_boot.cmd - Boot update only
+
+.\fwu_new.cmd App/Boot Keypad Version Number App/Boot Lock Version Number 
+.\fwu_new.cmd 01.02.02.02 01.02.02.02
+
+.\fwlevels.py
+- Will look up the current FW level but not do anything
+
+.\fwu_new.cmd noop 01.02.02.02 
+- Will only update the App/Boot Lock File
+# To run from command line 
+Invoke-Command -ComputerName (remote computer name) -ScriptBlock {D:\Projects\kml-pa-automation\NextGenLaGard\setupeverest.ps1 705; $env::debugcomport="COM10"; $env:softwarecomport="COM12"; .\SetEverestVersionInfo.ps1; .\fwu_new.cmd 01.02.02.02 01.02.02.02
+
+If run .\setupeverest.ps1 703 from terminal then run the script from terminal the Path will be set correctly
+
+# To run a regression test
+RegressionRun.cmd 702D RegressionListModel702D.txt
+
+# Can set file name for output on regression test if desired 
+set TestCaseLog=TestCaseLog705.txt
+
+termal commands:
+- set | find "cable"
+- set | find "port"
+- dir comports.txt
+- type comports.txt
+
+- goto setrest
+	- will set up python path and ask to set model
+	
+	
+- Update TestRail
+updatetestrail.py updatetestrail.txt
+or it will pull from EverestTestResults.txt
+Can also feed testrail ID and PW after the txt file and not have to update EverestConfig
+
+
+Invoke-Command -ComputerName (remote computer name) -ScriptBlock {D:\Projects\kml-pa-automation\NextGenLaGard_Sumanta\setupeverest.ps1 701; .\'Model 2'\Manager\Enter_Invalid_TimeDate_Model_2_Manager.py}
+
+
+$env:EverestVersionInfo="01010303"
+
+# add the ./SetEverestVersionInfo.ps1 instead of needing $env:EverestVersionInfo="01010303"
+Invoke-Command -ComputerName (remote computer name) -ScriptBlock {D:\Projects\kml-pa-automation\NextGenLaGard_Sumanta\setupeverest.ps1 701; .\SetEverestVersionInfo.ps1; python sysinfoallread.py}
+
+- To save terminal output
+python ./File.py > tee SomeFile.txt 
+
+- To append terminal output 
+python ./File.py >> tee SomeFile.txt 
+
+
+#    KeyPound          = ord('#'),
+#    KeyUp             = ord('-'),
+#    KeyDown           = ord('='),
+#    KeyEnter          = ord('!')
+X - clear buffer in the lock
+
+'+' and '.' read the display (waiting)
+'@' tells the automation to change the error code to 0 (error code it default 1) (succuss)
+A : that is not braketed it seperates the if from else
+
+
+
+Non-Display unit
+cap - turn off
+lower - turn on
+b/B is blink
+a/A - amber
+g/G - green
+r/R - red
+
+
+Privilege Setting:
+1 - Open Lock Only
+2 - Audit Lock only
+3 - Open + Audit Lock
+5 - Open + TDO Combination
+7 - Open + Audit + TDO Combination
+
+
+
+example
+
+#run powershell script fofr remote testing
+Invoke-Command -ComputerName (remote computer name) -ScriptBlock {D:\Projects\kml-pa-automation\NextGenLaGard_Sumanta\setupeverest.ps1 705; .\'Model 3'\Master\'OpenLock_Master_Model_3.py'} >> C:\Users\hogglu\Desktop\OutputTest.txt
+
+#new firmware
+changeMasterComboCheck(combocheck = masterCombo)
+
+# Change Master Combo if FW version requires force master combo change
+changeMasterComboCheck(method="MENU", combocheck=masterCombo
+
+#error checking
+errorName = []
+
+errorName.append('')
+
+print(errorName)
+7
+/.,,.//.,,.//.,,.//.,,.//.,.//.,
+(build pound command)
+(ResetInstallState)
+
+
+
+,.///.,,.//.,,.//.,,.//.,,.//.,,.//.,
+
+result= EverestKeypadCommand(CommandRoute.Immediate, 'somewhere', teststring)
+
+
+# Turn buzzer off
+testcommand = commandx20(CommandSubTags.Buzzer,CommandFlags.Write)
+testcommand.CredentialType = 0
+testcommand.user1PIN = masterID + masterCombo
+testcommand.user1FOB = "0000000000000000"
+testcommand.user2PIN = "000000"
+testcommand.user2FOB = "0000000000000000"
+testcommand.Buzzer = 0
+teststring = testcommand.BuildMenuCommand()
+result_dict = EverestKeypadCommand(CommandRoute.Lock01, 'somewhere', teststring)
+result_dict['Result'] = (True and result_dict["ErrorCode"]==0)
+print(result_dict)
+
+# get time date
+#get After time date
+testcommand = commandx20(CommandSubTags.TimeDate, CommandFlags.Read)
+testcommand.user1PIN = masterID + masterCombo
+before_results = EverestKeypadCommand(CommandRoute.Immediate, '', testcommand.BuildMenuCommand())
+
+AfterTimeDate = before_results['LCDBuffer']
+print(AfterTimeDate)
+
+
+# Uninstall lock 2-5
+uninstall_lock_menu(2, masterID, masterCombo)
+uninstall_lock_menu(3, masterID, masterCombo)
+uninstall_lock_menu(4, masterID, masterCombo)
+uninstall_lock_menu(5, masterID, masterCombo)
+
+# reset locks 2-5 if installed
+for i in range(2, 6):
+    testcommand = commandx20(CommandSubTags.ResetLockWithCombo, CommandFlags.Execute)
+    testcommand.user1PIN = masterID + masterCombo
+    testcommand.LockID = i
+    teststring = testcommand.BuildMenuCommand()
+    result_dict = EverestKeypadCommand(CommandRoute.Immediate, 'somewhere', teststring)
+
+
+
+
+testcommand = commandx20(CommandSubTags.ResetLockWithCombo, CommandFlags.Execute)
+testcommand.user1PIN = masterID + masterCombo
+testcommand.LockID = 2
+teststring = testcommand.BuildMenuCommand()
+result_dict = EverestKeypadCommand(CommandRoute.Immediate, 'somewhere', teststring)
+
+
+# Wait out time delay
+    print('Waiting out time delay...')
+    result_dict = []
+    if 'LCDBuffer' in results and results['LCDBuffer'] == '  LockStart Delay':
+        result_dict = EverestKeypadCommand(CommandRoute.Immediate, '', '().[  LockStart Delay]')
+        pollstring = '.'
+        while True:
+            sleep(1)
+            result_dict = EverestKeypadCommand(CommandRoute.Immediate, '', '()' + pollstring)
+            if 'LCDBuffer' in result_dict and result_dict['LCDBuffer'] != '':
+                if result_dict['LCDBuffer'][0:16] != 'Lock statusDelay':
+                    break
+                pollstring = '.'
+            else:
+                pollstring = '#'
+    # Note the time
+    delayend = datetime.datetime.today()
+
+    # Wait out open window
+    print('Waiting out open window...')
+    if 'LCDBuffer' in result_dict and result_dict['LCDBuffer'][0:18] == 'Lock statusConfirm':
+        pollstring = '.'
+        while True:
+            sleep(1)
+            result_dict = EverestKeypadCommand(CommandRoute.Immediate, '', '()' + pollstring)
+            if 'LCDBuffer' in result_dict and result_dict['LCDBuffer'] != '':
+                if result_dict['LCDBuffer'][0:18] != 'Lock statusConfirm':
+                    break
+                pollstring = '.'
+            else:
+                pollstring = '#'
+
+
+/*--*//*--*//*--*//*--*/
+use the command .\bucketfind.cmd 704BLE 102169
+
+102169
+
+/*--*/*--*/*--*//*--*//*--*/
+openlockcommand.user1PIN = userID1 + userCombo1
+openlockcommand.user1FOB = managerFOB1
+
+.\bucketfind.cmd 704BLE 
+
+
+
+/*--*//*--*//*--*//*-*//*--*/
+
+I took a look at Model 2\Master\Time_Delay_Windows_Menu_Model_2.py and it looks as though the only real problem is that the ‘  LockDelay Start’ is hanging around a little longer and the loops that wait out the time delay window are ending immediately, because they’re only expecting ‘LockStatus Delay *.*’.
+
+In the menu versions we don’t need to change the test on the time delay start to a success check, because it still reports failure because we never see ‘Lock Open’. We could change that check to include a check for three green LED flashes, though.
+
+If you compare what’s in NextGenLagard to what’s in NextGenLaGard_Sumanta, you’ll see what I changed to get the version that’s so far running successfully on the 704 in the lab right now.
+
+
+
+/*--*//*--*//*--*//*--*/
+
+# change to dual credential
+credentialmodecommand = commandx20(CommandSubTags.CredentialMode, CommandFlags.Write)
+credentialmodecommand.user1PIN = masterID + masterCombo
+credentialmodecommand.CredentialMode = int(CredentialModes.DualAppliesToMgr)
+results = EverestKeypadCommand(CommandRoute.Immediate, '', credentialmodecommand.BuildMenuCommand())
+print(results)
+if results['ErrorCode'] != CommandErrorCode.NoError:
+    errorName.append('dual credential')
+    errors += 1
+
+
+sum_results = setUserMode('MENU', 'dual', masterCombo)
+
+file explorer for beagle bone
+
+[Wednesday 3:03 PM] Lula Hogg
+
+# Build Set User Lock Privileges for user '3' to Audit only
+print('setting user privliges for user 03 to audit only, C105938	Edit User Lock Privilege ')
+result = (setUserPrivilege(method='MENU', masterID='00', masterCombo=Default_Master_Combo,
+                           userPrivs=2, userID=userID))
+if result['ErrorCode'] != CommandErrorCode.NoError:
+    errorName.append('build set user lock priv user 3, audit only')
+    errors = errors + 1
+    print('error detected')
+else:
+    print('no errors detected')
+
+
+
+CredentialType = 
+0 - combo only
+1 - 2 users combo only
+2 - 1 user combo + FOB 
+3 - 2 users combo + FOB
+
+
+
+.\bucketfind.cmd 704BLE 'master menu'
+
+
+
+#Logging into the master menu to clear the WTP count
+teststring = MenuLogin(masterID,masterCombo,'','') + '{[<MainMenu>]@}'
+result = EverestKeypadCommand(CommandRoute.Lock01, 'somewhere', teststring)
+print(result)
+if result['ErrorCode'] != CommandErrorCode.NoError:
+    errorName.append('logging into the master menu')
+    errors += 1
+
+if errors != 0:
+    print('errors = ' + str(errors))
+MenuLogout()
+
+
+regressiontestcaselogmodel…
+.\ScriptListModel704BLE.ps1
+
+
+
+python "704BLE\MANAGER\SYS_INFO_MENU_MANAGER_MODEL_2.py"
+python "704BLE\USER\SYS_INFO_MENU_ACCESS_USER_MODEL_2.py"
+python "704BLE\USER\SYS_INFO_MENU_AUDIT_USER_MODEL_2.py"
+python "704BLE\USER\WTP_MODEL_2_DUAL_USER_2_101831.py"
+python "704BLE\USER\WTP_MODEL_2_DUAL_USER_REMOTELOCKOUT_7DIGIT_101836.py"
+python "704BLE\USER\WTP_MODEL_2_DUAL_USER_REMOTELOCKOUT_8DIGIT_101837.py"
+python "704BLE\USER\WTP_MODEL_2_DUAL_USER_REMOTELOCKOUT_9DIGIT_101838.py"
+python "704BLE\MASTER\ADD_ONE_MANAGER_C101824.py"
+python "704BLE\MASTER\ADD_TWO_MANAGERS_C101825.py"
+
+
+
+login
+Enter-PSSession (remote computer name)
+
+Directory
+cd D:\Projects\kml-pa-automation\NextGenLaGard_Sumanta
+
+first
+.\setupeverest.ps1 704BLE
+
+second
+.\SetEverestVersionInfo.ps1
+
+run script list 
+.\ScriptListModel704BLE >> C:\Users\mcdonneo\Documents\Eoin_test_2.txt
+
+python wtpwait.py
+cd C:\Users\oldmc\PycharmProjects\pythonProject1
+
+import os	
+os.chdir('C:\\Users\\oldmc\\PycharmProjects\\pythonProject1')
+
+openpyxl
+import openpyxl
+wb = openpyxl.Workbook()
+wb.sheetnames()
+
+
+PyPDF2
+pdfFile = open('meetingminutes1.pdf', 'rb')
+PyPDF2.PdfFileReader(pdfFile)
+reader = PyPDF2.PdfReader(pdfFile)
+len(reader.pages)
+page = reader.pages[0]
+print(page.extract_text())
+
+
+reader.getPage(pageNumber) is deprecated and was removed in PyPDF2 3.0.0. Use reader.pages[page_number] instead.
+
+reader.numPages is deprecated and was removed in PyPDF2 3.0.0. Use len(reader.pages) instead
+
+PyPDF2.errors.DeprecationError: PdfFileReader is deprecated and was removed in PyPDF2 3.0.0. Use PdfReader instead.
+
+PyPDF2.errors.DeprecationError: addPage is deprecated and was removed in PyPDF2 3.0.0. Use add_page instead.
+
+Extract pages with PyPDF2
+for pageNum in range(len(reader.pages)):
+	print(reader.pages[pageNum].extract_text())
+
+for pageNum in range(len(reader1.pages)):
+	page = reader1.str(pages[pageNum])
+	writer.add_page(page)
+
+
+for pageNum in range(len(reader2.pages)):
+	page = reader2.pages[pageNum]
+	writer.add_page(page)
+
+>>> pdf1File = open('meetingminutes1.pdf', 'rb')
+>>> pdf2File = open('meetingminutes2.pdf', 'rb')
+>>> reader1 = PyPDF2.PdfFileReader(pdf1File)
+
+
+
+for pageNum in range(len(reader1.pages)):
+	page = reader1.pages[pageNum]
+	writer.add_page(page)
+
+
+https://oldmcdonnell-my-todo-web-app-web-adh5qk.streamlit.app/
+
+gmail app password
+tqba yvlt vgqw xoym
